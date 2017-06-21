@@ -268,12 +268,17 @@ comment out the setFont function only in grafx.cpp*/
 
 // Color definitions
 #define BLACK       0x0000      /*   0,   0,   0 */
+#define WHITE       0xFFFF      /* 255, 255, 255 */
 #define NAVY        0x000F      /*   0,   0, 128 */
+#define BROWN       0xA145
+#define BEIGE       0xF7BB
+#define LIGHTBROWN  0xF52C
 #define DARKGREEN   0x03E0      /*   0, 128,   0 */
 #define DARKCYAN    0x03EF      /*   0, 128, 128 */
 #define MAROON      0x7800      /* 128,   0,   0 */
 #define PURPLE      0x780F      /* 128,   0, 128 */
 #define OLIVE       0x7BE0      /* 128, 128,   0 */
+#define GREY        0x8410
 #define LIGHTGREY   0xC618      /* 192, 192, 192 */
 #define DARKGREY    0x7BEF      /* 128, 128, 128 */
 #define BLUE        0x001F      /*   0,   0, 255 */
@@ -282,7 +287,6 @@ comment out the setFont function only in grafx.cpp*/
 #define RED         0xF800      /* 255,   0,   0 */
 #define MAGENTA     0xF81F      /* 255,   0, 255 */
 #define YELLOW      0xFFE0      /* 255, 255,   0 */
-#define WHITE       0xFFFF      /* 255, 255, 255 */
 #define ORANGE      0xFD20      /* 255, 165,   0 */
 #define GREENYELLOW 0xAFE5      /* 173, 255,  47 */
 #define PINK        0xF81F
@@ -380,16 +384,16 @@ class GrafxT3 : public Print
 //////////////-----------------------------Bitmap-----------------------------//////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
-     void        drawBitmap1(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w, int16_t h, uint16_t color);
+    void        drawBitmap1(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w, int16_t h, uint16_t color);
 	void        drawBitmap2(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w, int16_t h, uint16_t color, uint16_t bg);
 	void        drawBitmap3(int16_t x, int16_t y, uint8_t *bitmap, int16_t w, int16_t h, uint16_t color);
 	void        drawBitmap4(int16_t x, int16_t y, uint8_t *bitmap, int16_t w, int16_t h, uint16_t color, uint16_t bg);
 	
-    void        drawBitmapTM(int8_t x, int8_t y, int8_t w, int8_t h, const uint8_t *bitmap, uint8_t dx, uint8_t dy, uint8_t dw, uint8_t dh, uint16_t color);
-	boolean     getBitmapPixel(const uint8_t* bitmap, uint8_t x, uint8_t y);
+    void        drawBitmapTM(int32_t x, int32_t y, int32_t w, int32_t h, const uint8_t *bitmap, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, uint16_t color);
+	boolean     getBitmapPixel(const uint8_t* bitmap, uint32_t x, uint32_t y);
 
 	void        drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint16_t color);
-	void        drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint8_t dx, uint8_t dy, uint8_t dw, uint8_t dh, uint16_t color);
+	void        drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, uint16_t color);
 
 	typedef struct {       //line 171 "Public Variables   - ADD by Summoner123
 		int x;                    //X coordinate                 - ADD by Summoner123

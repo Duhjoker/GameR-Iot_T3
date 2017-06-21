@@ -135,6 +135,7 @@ static const uint8_t init_commands[] = {
 
 void GrafxT3::begin(void)
 {
+
     // verify SPI pins are valid;
 	// allow user to say use current ones...
 	if ((_mosi != 255) || (_miso != 255) || (_sclk != 255)) {
@@ -228,8 +229,10 @@ void GrafxT3::begin(void)
 	_dcpinAsserted = 0;
 #endif	
 
+ //    fillScreen(BLACK);
+
 	// toggle RST low to reset
-	if (_rst < 255) {
+	if (_rst != 255) {
 		pinMode(_rst, OUTPUT);
 		digitalWrite(_rst, HIGH);
 		delay(5);
@@ -298,7 +301,7 @@ void GrafxT3::fillScreen(uint16_t color)
 		uint32_t color32 = (color << 16) | color;
 
 		uint32_t *pfbPixel = (uint32_t *)_pfbtft;
-		uint32_t *pfbtft_end = (uint32_t *)((uint16_t *)&_pfbtft[(GrafxT3_TFTWIDTH * GrafxT3_TFTHEIGHT)]); // setup
+		uint32_t *pfbtft_end = (uint32_t *)((uint16_t *)&_pfbtft[(GrafxT3_TFTHEIGHT * GrafxT3_TFTWIDTH)]); // setup
 		while (pfbPixel < pfbtft_end) {
 			*pfbPixel++ = color32; *pfbPixel++ = color32; *pfbPixel++ = color32;*pfbPixel++ = color32;
 			*pfbPixel++ = color32; *pfbPixel++ = color32; *pfbPixel++ = color32;*pfbPixel++ = color32;
@@ -1204,17 +1207,17 @@ void GrafxT3::drawBitmap4(int16_t x, int16_t y,
 	}
 }
 
-void GrafxT3::drawBitmapTM(int8_t x, int8_t y, int8_t w, int8_t h, const uint8_t *bitmap, uint8_t dx, uint8_t dy, uint8_t dw, uint8_t dh, uint16_t color) {
-	int8_t i, j, byteWidth = (w + 7) / 8;
+void GrafxT3::drawBitmapTM(int32_t x, int32_t y, int32_t w, int32_t h, const uint8_t *bitmap, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, uint16_t color) {
+	int32_t i, j, byteWidth = (w + 7) / 8;
 	dw += dx;
 	dh += dy;
-	int8_t largest = 0;
-	int8_t largesty = 0;
+//	int32_t largest = 0;
+//	int32_t largesty = 0;
 	for (j = 0; j < h; j++) {
 		for (i = 0; i < w; i++) {
 			if (pgm_read_byte(bitmap + j * byteWidth + i / 8) & (B10000000 >> (i % 8))) {
-				int8_t drawX = x + i;
-				int8_t drawY = y + j;
+				int32_t drawX = x + i;
+				int32_t drawY = y + j;
 
 				if (drawX >= dx && drawX < dw && drawY >= dy && drawY < dh){
 					drawPixel(drawX, drawY, color);
@@ -1224,31 +1227,31 @@ void GrafxT3::drawBitmapTM(int8_t x, int8_t y, int8_t w, int8_t h, const uint8_t
 	}
 }
 
-boolean GrafxT3::getBitmapPixel(const uint8_t* bitmap, uint8_t x, uint8_t y){
+boolean GrafxT3::getBitmapPixel(const uint8_t* bitmap, uint32_t x, uint32_t y){
 	return pgm_read_byte(bitmap + 2 + y * ((pgm_read_byte(bitmap) + 7) / 8) + (x >> 3)) & (B10000000 >> (x % 8));
 }
 
 void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint16_t color){
-	drawTilemap(x, y, tilemap, spritesheet, 0, 0, GrafxT3_TFTWIDTH, GrafxT3_TFTHEIGHT, color);
+	drawTilemap(x, y, tilemap, spritesheet, 0, 0, GrafxT3_TFTHEIGHT, GrafxT3_TFTWIDTH, color);
 }
-void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint8_t dx, uint8_t dy, uint8_t dw, uint8_t dh, uint16_t color){
-	uint8_t tilemap_width = pgm_read_byte(tilemap);
-	uint8_t tilemap_height = pgm_read_byte(tilemap + 1);
-	uint8_t tile_width = pgm_read_byte(tilemap + 2);
-	uint8_t tile_height = pgm_read_byte(tilemap + 3);
+void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, uint16_t color){
+	uint32_t tilemap_width = pgm_read_byte(tilemap);
+	uint32_t tilemap_height = pgm_read_byte(tilemap + 1);
+	uint32_t tile_width = pgm_read_byte(tilemap + 2);
+	uint32_t tile_height = pgm_read_byte(tilemap + 3);
 	tilemap += 4; // now the first tiyleis at tilemap
-	uint8_t ddw = dw + dx;
-	uint8_t ddh = dh + dy;
-	uint8_t maxDdx = (dw - x + tile_width - 1) / tile_width;
-	uint8_t maxDdy = (dh - y + tile_height - 1) / tile_height;
+	uint32_t ddw = dw + dx;
+	uint32_t ddh = dh + dy;
+	uint32_t maxDdx = (dw - x + tile_width - 1) / tile_width;
+	uint32_t maxDdy = (dh - y + tile_height - 1) / tile_height;
 	if (tilemap_width < maxDdx){
 		maxDdx = tilemap_width;
 	}
 	if (tilemap_height < maxDdy){
 		maxDdy = tilemap_height;
 	}
-	int8_t startDdx = (-x) / tile_width;
-	int8_t startDdy = (-y) / tile_height;
+	int32_t startDdx = (-x) / tile_width;
+	int32_t startDdy = (-y) / tile_height;
 	if (startDdx < 0){
 		startDdx = 0;
 	}
@@ -1257,11 +1260,11 @@ void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **
 	}
 	if (flagcollision)numcolision = 0;                                 //Line 735 - clear numcolision - ADD by Summoner123
 
-	for (uint8_t ddy = startDdy; ddy < maxDdy; ddy++){
-		for (uint8_t ddx = startDdx; ddx < maxDdx; ddx++){
-			int8_t drawX = ddx*tile_width + x + dx;
-			int8_t drawY = ddy*tile_height + y + dy;
-			uint8_t tile = pgm_read_byte(tilemap + ddy*tilemap_width + ddx);
+	for (uint32_t ddy = startDdy; ddy < maxDdy; ddy++){
+		for (uint32_t ddx = startDdx; ddx < maxDdx; ddx++){
+			int32_t drawX = ddx*tile_width + x + dx;
+			int32_t drawY = ddy*tile_height + y + dy;
+			uint32_t tile = pgm_read_byte(tilemap + ddy*tilemap_width + ddx);
 			if (drawX >= dx && drawY >= dy && drawX <= (ddw - tile_width) && drawY <= (ddh - tile_height)){
 				drawBitmap1(drawX, drawY, spritesheet[tile], tile_width, tile_height, color );
 
