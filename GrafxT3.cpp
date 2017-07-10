@@ -240,6 +240,13 @@ void GrafxT3::begin(void)
 		delay(20);
 		digitalWrite(_rst, HIGH);
 		delay(150);
+
+        timePerFrame = 50;
+	    //nextFrameMillis = 0;
+	    //frameCount = 0;
+	    frameEndMicros = 1;
+	    startMenuTimer = 255;
+
 	}
 /*
 	uint8_t x = readcommand8(GrafxT3_RDMODE);
@@ -1138,6 +1145,21 @@ void GrafxT3::drawPolygon(int16_t cx, int16_t cy, uint8_t sides, int16_t diamete
 //////////////---------------------------Bitmap-----------------------//////////////
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
+void GrafxT3::drawBitmap(int16_t x, int16_t y,
+			      const uint8_t *bitmap, int16_t w, int16_t h,
+			      uint16_t color) {
+
+  int16_t i, j, byteWidth = (w + 7) / 8;
+
+  for(j=0; j<h; j++) {
+    for(i=0; i<w; i++ ) {
+      if(pgm_read_byte(bitmap + j * byteWidth + i / 8) & (128 >> (i & 7))) {
+	drawPixel(x+i, y+j, color);
+      }
+    }
+  }
+}
+
 // Draw a 1 - bit image(bitmap) at the specified(x, y) position from the
 // provided bitmap buffer (must be PROGMEM memory) using the specified
 // foreground color (unset bits are transparent).
@@ -1207,8 +1229,8 @@ void GrafxT3::drawBitmap4(int16_t x, int16_t y,
 	}
 }
 
-void GrafxT3::drawBitmapTM(int32_t x, int32_t y, int32_t w, int32_t h, const uint8_t *bitmap, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, uint16_t color) {
-	int32_t i, j, byteWidth = (w + 7) / 8;
+void GrafxT3::drawBitmapTM(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *bitmap, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, uint16_t color) {
+	int16_t i, j, byteWidth = (w + 7) / 8;
 	dw += dx;
 	dh += dy;
 //	int32_t largest = 0;
@@ -1216,8 +1238,8 @@ void GrafxT3::drawBitmapTM(int32_t x, int32_t y, int32_t w, int32_t h, const uin
 	for (j = 0; j < h; j++) {
 		for (i = 0; i < w; i++) {
 			if (pgm_read_byte(bitmap + j * byteWidth + i / 8) & (B10000000 >> (i % 8))) {
-				int32_t drawX = x + i;
-				int32_t drawY = y + j;
+				int16_t drawX = x + i;
+				int16_t drawY = y + j;
 
 				if (drawX >= dx && drawX < dw && drawY >= dy && drawY < dh){
 					drawPixel(drawX, drawY, color);
@@ -1227,31 +1249,31 @@ void GrafxT3::drawBitmapTM(int32_t x, int32_t y, int32_t w, int32_t h, const uin
 	}
 }
 
-boolean GrafxT3::getBitmapPixel(const uint8_t* bitmap, uint32_t x, uint32_t y){
+boolean GrafxT3::getBitmapPixel(const uint8_t* bitmap, uint16_t x, uint16_t y){
 	return pgm_read_byte(bitmap + 2 + y * ((pgm_read_byte(bitmap) + 7) / 8) + (x >> 3)) & (B10000000 >> (x % 8));
 }
 
-void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint16_t color){
-	drawTilemap(x, y, tilemap, spritesheet, 0, 0, GrafxT3_TFTHEIGHT, GrafxT3_TFTWIDTH, color);
+void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, const uint16_t * palette){
+	drawTilemap(x, y, tilemap, spritesheet, 0, 0, GrafxT3_TFTHEIGHT, GrafxT3_TFTWIDTH, palette);
 }
-void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, uint16_t color){
-	uint32_t tilemap_width = pgm_read_byte(tilemap);
-	uint32_t tilemap_height = pgm_read_byte(tilemap + 1);
-	uint32_t tile_width = pgm_read_byte(tilemap + 2);
-	uint32_t tile_height = pgm_read_byte(tilemap + 3);
+void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette){
+	uint16_t tilemap_width = pgm_read_byte(tilemap);
+	uint16_t tilemap_height = pgm_read_byte(tilemap + 1);
+	uint16_t tile_width = pgm_read_byte(tilemap + 2);
+	uint16_t tile_height = pgm_read_byte(tilemap + 3);
 	tilemap += 4; // now the first tiyleis at tilemap
-	uint32_t ddw = dw + dx;
-	uint32_t ddh = dh + dy;
-	uint32_t maxDdx = (dw - x + tile_width - 1) / tile_width;
-	uint32_t maxDdy = (dh - y + tile_height - 1) / tile_height;
+	uint16_t ddw = dw + dx;
+	uint16_t ddh = dh + dy;
+	uint16_t maxDdx = (dw - x + tile_width - 1) / tile_width;
+	uint16_t maxDdy = (dh - y + tile_height - 1) / tile_height;
 	if (tilemap_width < maxDdx){
 		maxDdx = tilemap_width;
 	}
 	if (tilemap_height < maxDdy){
 		maxDdy = tilemap_height;
 	}
-	int32_t startDdx = (-x) / tile_width;
-	int32_t startDdy = (-y) / tile_height;
+	int16_t startDdx = (-x) / tile_width;
+	int16_t startDdy = (-y) / tile_height;
 	if (startDdx < 0){
 		startDdx = 0;
 	}
@@ -1260,13 +1282,13 @@ void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **
 	}
 	if (flagcollision)numcolision = 0;                                 //Line 735 - clear numcolision - ADD by Summoner123
 
-	for (uint32_t ddy = startDdy; ddy < maxDdy; ddy++){
-		for (uint32_t ddx = startDdx; ddx < maxDdx; ddx++){
-			int32_t drawX = ddx*tile_width + x + dx;
-			int32_t drawY = ddy*tile_height + y + dy;
-			uint32_t tile = pgm_read_byte(tilemap + ddy*tilemap_width + ddx);
+	for (uint16_t ddy = startDdy; ddy < maxDdy; ddy++){
+		for (uint16_t ddx = startDdx; ddx < maxDdx; ddx++){
+			int16_t drawX = ddx*tile_width + x + dx;
+			int16_t drawY = ddy*tile_height + y + dy;
+			uint16_t tile = pgm_read_byte(tilemap + ddy*tilemap_width + ddx);
 			if (drawX >= dx && drawY >= dy && drawX <= (ddw - tile_width) && drawY <= (ddh - tile_height)){
-				drawBitmap1(drawX, drawY, spritesheet[tile], tile_width, tile_height, color );
+				writeRectNBPP(drawX, drawY,tile_width, tile_height, 4, spritesheet[tile], palette );
 
 				if (flagcollision){
 					solid[numcolision].x = drawX;                     //Save X coordinate      - ADD by Summoner123
@@ -1276,7 +1298,7 @@ void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **
 				}
 			}
 			else{ // we need to draw a partial bitmap
-				drawBitmapTM(drawX, drawY, tile_width, tile_height, spritesheet[tile], dx, dy, dw, dh, color);
+				writeRect4BPPtm(drawX, drawY, tile_width, tile_height, spritesheet[tile], dx, dy, dw, dh, palette);
 			}
 		}
 	}
@@ -2016,6 +2038,114 @@ int16_t GrafxT3::strPixelLen(char * str)
 	return( maxlen );
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////POPUP/TITLESCREEN///////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+  void GrafxT3::popup(const __FlashStringHelper* text, uint8_t duration){
+	popupText = text;
+	popupTimeLeft = duration+12;
+}
+
+void GrafxT3::updatePopup(){
+	if (popupTimeLeft){
+		uint8_t yOffset = 0;
+		if(popupTimeLeft<12){
+			yOffset = 12-popupTimeLeft;
+		}
+		setTextSize(1);
+//		setColor(WHITE);
+		fillRoundRect(0,GrafxT3_TFTHEIGHT-textsize+yOffset-3,84,textsize+3,3,WHITE);
+//		setColor(BLACK);
+		drawRoundRect(0,GrafxT3_TFTHEIGHT-textsize+yOffset-3,84,textsize+3,3,BLACK);
+		setCursor( 4, GrafxT3_TFTHEIGHT-textsize+yOffset-1);
+		print(popupText);
+		popupTimeLeft--;
+	}
+}
+
+/*void GrafxT3::titleScreen(const __FlashStringHelper* name){
+	titleScreen(name, 0);
+}
+
+void GrafxT3::titleScreen(const uint8_t* logo){
+	titleScreen(F(""), logo);
+}
+
+void GrafxT3::titleScreen(){
+	titleScreen(F(""));
+}*/
+
+
+/*void GrafxT3::titleScreen(const __FlashStringHelper*  name, const uint8_t *logo){
+	if(startMenuTimer){
+		textsize = 1;
+		textWrap = false;
+		persistence = false;
+		fillScreen(BLACK);
+		while(1){
+			if(update()){
+				uint8_t logoOffset = pgm_read_byte(name)?textsize:0; //add an offset the logo when there is a name to display
+				//draw graphics
+				#if GrafxT3_TFTWIDTH;
+				drawBitmap1(0,0, gamebuinoLogo,84,10,BLACK);
+				if(logo){
+					drawBitmap1(0, 12+logoOffset, logo,84,10,GREEN);
+				}
+				cursor_x = 0;
+				cursor_y = 12; 
+				#else
+			    	drawBitmap(7,0, gamebuinoLogo,84,10,BLACK);
+			    	drawBitmap(-41,12,gamebuinoLogo,84,10,GREEN);
+				if(logo){
+			        drawBitmap(0, 24+logoOffset, logo,84,10,BLUE);
+				}
+				cursor_x = 0;
+				cursor_y = 24; 
+				#endif
+				print(name);
+				
+				//A button
+				cursor_x = Grafx_TFTWIDTH - display.fontWidth*3 -1;
+				cursor_y = GrafxT3_TFTHEIGHT - display.fontHeight*3 - 3;
+				if((frameCount/16)%2)
+				  println(F("\25 \20"));
+				else
+				  println(F("\25\20 "));
+				//B button
+				display.cursorX = LCDWIDTH - display.fontWidth*3 - 1;
+				display.cursorY++;
+				if(sound.globalVolume)
+					display.println(F("\26\23\24"));
+				else
+					display.println(F("\26\23x"));
+				//C button
+				display.cursorX = LCDWIDTH - display.fontWidth*3 - 1;
+				display.cursorY++;
+				display.println(F("\27SD"));
+				
+				//toggle volume when B is pressed
+				if(buttons.pressed(BTN_B)){
+					sound.setVolume(sound.globalVolume+1);
+					sound.playTick();
+				}
+				//leave the menu
+				if(buttons.pressed(BTN_A) || ((frameCount>=startMenuTimer)&&(startMenuTimer != 255))){
+					startMenuTimer = 255; //don't automatically skip the title screen next time it's displayed
+					sound.stopPattern(0);
+					sound.playOK();
+					break;
+				}
+				//flash the loader
+				if(buttons.pressed(BTN_C))
+					changeGame();
+			}
+		}
+		battery.show = true;
+	}
+}
+*/
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 //////////////-----------------------Cursor------------------------------//////////////
@@ -2193,42 +2323,21 @@ boolean GrafxT3::updateAll() {
 
 		frameEndMicros = 0;
 		frameStartMicros = micros();
-
-
-//		buttons.update();
-//		battery.update();
-
-		return true;
+        return true;
 
 	}
 	else {
 		if (!frameEndMicros) { //runs once at the end of the frame
-//			sound.updateTrack();
-//			sound.updatePattern();
-//			sound.updateNote();
-//			updatePopup();
-//			displayBattery();
-
-			updateScreen(); //send the buffer to the screen
+//			
+         useFrameBuffer(1);
 			if (!persistence)
+				  updateScreen();
 				freeFrameBuffer(); //clear the buffer
+ //                updateScreen();
 
 			frameEndMicros = micros(); //measure the frame's end time
 			frameDurationMicros = frameEndMicros - frameStartMicros;
 
-			//            display.setTextColor(BLACK);
-			//            display.setCursor(0, 40);
-			//            display.print(frameDurationMicros / timePerFrame);
-			//            display.print(" ");
-			//            display.print(2048 - freeRam());
-
-			//            display.setCursor(0, 32);
-			//            display.print("CPU:");
-			//            display.print(frameDurationMicros / timePerFrame);
-			//            display.println("/1000");
-			//            display.print("RAM:");
-			//            display.print(2048 - freeRam());
-			//            display.println("/2048");
 		}
 		return false;
 	}
@@ -2774,7 +2883,27 @@ void GrafxT3::writeRect4BPP(int16_t x, int16_t y, int16_t w, int16_t h, const ui
 	// Simply call through our helper
 	writeRectNBPP(x, y, w, h,  4, pixels, palette );
 }
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+void GrafxT3::writeRect4BPPtm(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *pixels, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette )
+{
+	dw += dx;
+	dh += dy;{
+//	int32_t largest = 0;
+//	int32_t largesty = 0;
+		int16_t drawX = x;
+				int16_t drawY = y;
 
+				if (drawX >= dx && drawX < dw && drawY >= dy && drawY < dh){
+	// Simply call through our helper
+	writeRectNBPP(x, y, w, h,  4, pixels, palette );
+        }
+    }
+}
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////
 // writeRect2BPP - 	write 2 bit per pixel paletted bitmap
 //					bitmap data in array at pixels, 4 bits per pixel
 //					color palette data in array at palette
@@ -2874,7 +3003,8 @@ void GrafxT3::writeRectNBPP(int16_t x, int16_t y, int16_t w, int16_t h,  uint8_t
 	}
 	#endif
 
-	beginSPITransaction();
+///////////////////////////////////////////////////////////////////
+/*	beginSPITransaction();
 	setAddr(x, y, x+w-1, y+h-1);
 	writecommand_cont(GrafxT3_RAMWR);
 	for (;h>0; h--) {
@@ -2893,8 +3023,31 @@ void GrafxT3::writeRectNBPP(int16_t x, int16_t y, int16_t w, int16_t h,  uint8_t
 		pixels_row_start += count_of_bytes_per_row;
 	}
 	writecommand_last(GrafxT3_NOP);
+	endSPITransaction();*/
+////////////////////////////////////////////////////////////////////
+///for transparent pixels
+	beginSPITransaction();
+	for (;h>0; h--) {
+		pixels = pixels_row_start;				// setup for this row
+		uint8_t pixel_shift = row_shift_init;			// Setup mask
+		for (int i = 0 ;i < w; i++) {
+			uint8_t palette_index = ((*pixels)>>pixel_shift) & pixel_bit_mask;
+			if (palette_index != TRANSPARENT_INDEX)
+				Pixel(x_out, y, palette[palette_index]);
+			if (!pixel_shift) {
+				pixel_shift = 8 - bits_per_pixel;	//setup next mask
+				pixels++;
+			} else {
+				pixel_shift -= bits_per_pixel;
+			}
+			x_out++;
+		}
+		pixels_row_start += count_of_bytes_per_row;
+		y++;
+	}
 	endSPITransaction();
 }
+
 
 size_t GrafxT3::write(uint8_t c)
 {

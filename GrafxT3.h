@@ -267,6 +267,10 @@ comment out the setFont function only in grafx.cpp*/
 */
 
 // Color definitions
+
+#define TRANSPARENT_INDEX 0
+
+#define BLANK       0x00   
 #define BLACK       0x0000      /*   0,   0,   0 */
 #define WHITE       0xFFFF      /* 255, 255, 255 */
 #define NAVY        0x000F      /*   0,   0, 128 */
@@ -289,7 +293,15 @@ comment out the setFont function only in grafx.cpp*/
 #define YELLOW      0xFFE0      /* 255, 255,   0 */
 #define ORANGE      0xFD20      /* 255, 165,   0 */
 #define GREENYELLOW 0xAFE5      /* 173, 255,  47 */
-#define PINK        0xF81F
+#define PINK        0xFFD6D6    /* 255, 214, 214 */    
+
+/*int a;
+int b;
+int c;
+int d;
+int e;
+int f;
+int g;*/
 
 #define CL(_r,_g,_b) ((((_r)&0xF8)<<8)|(((_g)&0xFC)<<3)|((_b)>>3))
 
@@ -384,16 +396,17 @@ class GrafxT3 : public Print
 //////////////-----------------------------Bitmap-----------------------------//////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
+    void        drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w, int16_t h, uint16_t color);
     void        drawBitmap1(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w, int16_t h, uint16_t color);
 	void        drawBitmap2(int16_t x, int16_t y, const uint8_t *bitmap, int16_t w, int16_t h, uint16_t color, uint16_t bg);
 	void        drawBitmap3(int16_t x, int16_t y, uint8_t *bitmap, int16_t w, int16_t h, uint16_t color);
 	void        drawBitmap4(int16_t x, int16_t y, uint8_t *bitmap, int16_t w, int16_t h, uint16_t color, uint16_t bg);
 	
-    void        drawBitmapTM(int32_t x, int32_t y, int32_t w, int32_t h, const uint8_t *bitmap, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, uint16_t color);
-	boolean     getBitmapPixel(const uint8_t* bitmap, uint32_t x, uint32_t y);
+    void        drawBitmapTM(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *bitmap, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh,  uint16_t color);
+	boolean     getBitmapPixel(const uint8_t* bitmap, uint16_t x, uint16_t y);
 
-	void        drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint16_t color);
-	void        drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint32_t dx, uint32_t dy, uint32_t dw, uint32_t dh, uint16_t color);
+	void        drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, const uint16_t * palette);
+	void        drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette);
 
 	typedef struct {       //line 171 "Public Variables   - ADD by Summoner123
 		int x;                    //X coordinate                 - ADD by Summoner123
@@ -434,6 +447,20 @@ class GrafxT3 : public Print
 	void setFontAdafruit(void) { font = NULL; }
 	void drawFontChar(unsigned int c);
 	int16_t strPixelLen(char * str);
+////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////POPUP/TITLESCREEN///////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+    void popup(const __FlashStringHelper* text, uint8_t duration);
+    void updatePopup();
+    const __FlashStringHelper* popupText;
+    uint8_t popupTimeLeft;
+    
+//    void titleScreen(const __FlashStringHelper* name, const uint8_t *logo);
+//    void titleScreen(const __FlashStringHelper* name);
+//	  void titleScreen(const uint8_t* logo);
+//    void titleScreen();
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -499,7 +526,15 @@ class GrafxT3 : public Print
 	//					color palette data in array at palette
 	//					width must be at least 2 pixels
 	void writeRect4BPP(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *pixels, const uint16_t * palette );
-	
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+    void writeRect4BPPtm(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *pixels, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette );
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 	// writeRect2BPP - 	write 2 bit per pixel paletted bitmap
 	//					bitmap data in array at pixels, 4 bits per pixel
 	//					color palette data in array at palette
