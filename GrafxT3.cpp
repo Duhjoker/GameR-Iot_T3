@@ -3030,6 +3030,7 @@ void GrafxT3::writeRectNBPP(int16_t x, int16_t y, int16_t w, int16_t h,  uint8_t
 	for (;h>0; h--) {
 		pixels = pixels_row_start;				// setup for this row
 		uint8_t pixel_shift = row_shift_init;			// Setup mask
+                int16_t x_out = x; 
 		for (int i = 0 ;i < w; i++) {
 			uint8_t palette_index = ((*pixels)>>pixel_shift) & pixel_bit_mask;
 			if (palette_index != TRANSPARENT_INDEX)
