@@ -2987,7 +2987,11 @@ void GrafxT3::writeRectNBPP(int16_t x, int16_t y, int16_t w, int16_t h,  uint8_t
 			uint8_t pixel_shift = row_shift_init;			// Setup mask
 
 			for (int i = 0 ; i < w; i++) {
-				*pfbPixel++ = palette[((*pixels)>>pixel_shift) & pixel_bit_mask];
+///				*pfbPixel++ = palette[((*pixels)>>pixel_shift) & pixel_bit_mask];
+				uint8_t palette_index = ((*pixels)>>pixel_shift) & pixel_bit_mask;
+                if (palette_index != TRANSPARENT_INDEX)
+                *pfbPixel = palette[palette_index];
+                *pfbPixel++;
 				if (!pixel_shift) {
 					pixel_shift = 8 - bits_per_pixel;	//setup next mask
 					pixels++;
