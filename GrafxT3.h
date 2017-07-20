@@ -413,9 +413,9 @@ class GrafxT3 : public Print
 		int y;                    //Y coordinate                 - ADD by Summoner123
 		const byte *spritecol;    //Sprite of object             - ADD by Summoner123
 	}object;
-	object solid[60];         // Matriz were saved a Sprite, X and Y cordinates of all tiles on the screen - ADD by Summoner123
+	object solid[300];         // Matriz were saved a Sprite, X and Y cordinates of all tiles on the screen - ADD by Summoner123
 
-	byte numcolision = 0;     //count of solid objects indacat how many tiles drawed on the screen - ADD by Summoner123
+	int numcolision = 0;     //count of solid objects indacat how many tiles drawed on the screen - ADD by Summoner123
 
 	bool flagcollision = true;
 
