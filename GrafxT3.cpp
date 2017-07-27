@@ -2050,15 +2050,15 @@ int16_t GrafxT3::strPixelLen(char * str)
 
 void GrafxT3::updatePopup(){
 	if (popupTimeLeft){
-		uint8_t yOffset = 0;
+		int yOffset = 0;
 		if(popupTimeLeft<12){
 			yOffset = 12-popupTimeLeft;
 		}
 		setTextSize(1);
 //		setColor(WHITE);
-		fillRoundRect(0,GrafxT3_TFTHEIGHT-textsize+yOffset-3,84,textsize+3,3,WHITE);
+		fillRoundRect(0,GrafxT3_TFTHEIGHT-textsize+yOffset-3,320,textsize+3,3,WHITE);
 //		setColor(BLACK);
-		drawRoundRect(0,GrafxT3_TFTHEIGHT-textsize+yOffset-3,84,textsize+3,3,BLACK);
+		drawRoundRect(0,GrafxT3_TFTHEIGHT-textsize+yOffset-3,320,textsize+3,3,BLACK);
 		setCursor( 4, GrafxT3_TFTHEIGHT-textsize+yOffset-1);
 		print(popupText);
 		popupTimeLeft--;
