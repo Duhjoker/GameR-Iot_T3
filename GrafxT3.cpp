@@ -1256,12 +1256,19 @@ boolean GrafxT3::getBitmapPixel(const uint8_t* bitmap, uint16_t x, uint16_t y){
 void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, const uint16_t * palette){
 	drawTilemap(x, y, tilemap, spritesheet, 0, 0, GrafxT3_TFTHEIGHT, GrafxT3_TFTWIDTH, palette);
 }
+
 void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette){
-	uint16_t tilemap_width = pgm_read_byte(tilemap);
-	uint16_t tilemap_height = pgm_read_byte(tilemap + 1);
-	uint16_t tile_width = pgm_read_byte(tilemap + 2);
-	uint16_t tile_height = pgm_read_byte(tilemap + 3);
-	tilemap += 4; // now the first tiyleis at tilemap
+   uint8_t tilemap_width = pgm_read_byte(tilemap);
+   uint8_t tilemap_height = pgm_read_byte(tilemap + 1);
+   uint8_t tile_width = pgm_read_byte(tilemap + 2);
+   uint8_t tile_height = pgm_read_byte(tilemap + 3);
+   tilemap += 4; // now the first tiyleis at tilemap
+ // uint16_t tilemap_width = pgm_read_byte(tilemap)* 256 + pgm_read_byte(tilemap + 1);
+ // uint16_t tilemap_height = pgm_read_byte(tilemap + 2)* 256 + pgm_read_byte(tilemap + 3);
+ // uint16_t tile_width = pgm_read_byte(tilemap + 4);
+ // uint16_t tile_height = pgm_read_byte(tilemap + 5);
+ // tilemap += 6; // now the first tile is at tilemap
+
 	uint16_t ddw = dw + dx;
 	uint16_t ddh = dh + dy;
 	uint16_t maxDdx = (dw - x + tile_width - 1) / tile_width;
@@ -1316,7 +1323,7 @@ boolean GrafxT3::collidePointRect(int16_t x1, int16_t y1, int16_t x2, int16_t y2
 	return false;
 }
 
-boolean GrafxT3::collideRectRect(int16_t x1, int16_t y1, int16_t w1, int16_t h1, int16_t x2, int16_t y2, int16_t w2, int16_t h2){
+boolean GrafxT3::collideRectRect(int32_t x1, int32_t y1, int32_t w1, int32_t h1, int32_t x2, int32_t y2, int32_t w2, int32_t h2){
 	return !(x2 >= x1 + w1 ||
 		x2 + w2 <= x1 ||
 		y2 >= y1 + h1 ||
@@ -1559,6 +1566,7 @@ void GrafxT3::setTextSize(uint8_t s) {
 uint8_t GrafxT3::getTextSize() {
 	return textsize;
 }
+
 
 void GrafxT3::setTextColor(uint16_t c) {
   // For 'transparent' background, we'll set the bg
@@ -2043,7 +2051,48 @@ int16_t GrafxT3::strPixelLen(char * str)
 ////////////////////////////////////POPUP/TITLESCREEN///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
-  void GrafxT3::popup(const __FlashStringHelper* text, uint8_t duration){
+ void GrafxT3::popup(const __FlashStringHelper* text, uint8_t duration){
+
+  if (popupTimeLeft < millis()) {
+
+  	popupText = text;
+
+  	 popupTimeLeft = millis() + duration * 1000;
+
+
+  }
+}
+
+
+
+
+
+void GrafxT3::updatePopup(){
+
+   if (millis() < popupTimeLeft){
+
+      int yOffset = 0;
+
+      setTextSize(1);
+
+//      setColor(WHITE);
+
+      fillRoundRect(0,GrafxT3_TFTHEIGHT-textsize+yOffset-3,320,textsize+3,3,WHITE);
+
+//      setColor(BLACK);
+
+      drawRoundRect(0,GrafxT3_TFTHEIGHT-textsize+yOffset-3,320,textsize+3,3,BLACK);
+
+      setCursor( 4, GrafxT3_TFTHEIGHT-textsize+yOffset-1);
+
+      print(popupText);
+
+   }
+
+}
+
+
+/*  void GrafxT3::popup(const __FlashStringHelper* text, uint8_t duration){
 	popupText = text;
 	popupTimeLeft = duration+12;
 }
@@ -2063,7 +2112,7 @@ void GrafxT3::updatePopup(){
 		print(popupText);
 		popupTimeLeft--;
 	}
-}
+}*/
 
 /*void GrafxT3::titleScreen(const __FlashStringHelper* name){
 	titleScreen(name, 0);
@@ -2314,6 +2363,7 @@ void GrafxT3::updateScreen(void)					// call to say update the screen now.
 		endSPITransaction();
 	}
 	#endif
+	updatePopup();
 }			 
 
 boolean GrafxT3::updateAll() {
@@ -2884,14 +2934,14 @@ void GrafxT3::writeRect4BPP(int16_t x, int16_t y, int16_t w, int16_t h, const ui
 	writeRectNBPP(x, y, w, h,  4, pixels, palette );
 }
 ///////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 void GrafxT3::writeRect4BPPtm(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *pixels, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette )
 {
 	dw += dx;
 	dh += dy;{
-//	int32_t largest = 0;
-//	int32_t largesty = 0;
+//	int16_t largest = 0;
+//	int16_t largesty = 0;
 		int16_t drawX = x;
 				int16_t drawY = y;
 

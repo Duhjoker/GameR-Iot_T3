@@ -275,8 +275,8 @@ comment out the setFont function only in grafx.cpp*/
 #define WHITE       0xFFFF      /* 255, 255, 255 */
 #define NAVY        0x000F      /*   0,   0, 128 */
 #define BROWN       0xA145
-#define BEIGE       0xF7BB
-#define LIGHTBROWN  0xF52C
+#define LIGHTBROWN  0XF7BB
+#define BEIGE       0xF52C
 #define DARKGREEN   0x03E0      /*   0, 128,   0 */
 #define DARKCYAN    0x03EF      /*   0, 128, 128 */
 #define MAROON      0x7800      /* 128,   0,   0 */
@@ -295,13 +295,6 @@ comment out the setFont function only in grafx.cpp*/
 #define GREENYELLOW 0xAFE5      /* 173, 255,  47 */
 #define PINK        0xFFD6D6    /* 255, 214, 214 */    
 
-/*int a;
-int b;
-int c;
-int d;
-int e;
-int f;
-int g;*/
 
 #define CL(_r,_g,_b) ((((_r)&0xF8)<<8)|(((_g)&0xFC)<<3)|((_b)>>3))
 
@@ -337,6 +330,9 @@ typedef struct {
 #define GrafxT3_SPICLOCK 30000000
 #define GrafxT3_SPICLOCK_READ 20000000
 #endif
+
+//#define write_flash_page (*((void(*)(const char * page, unsigned char * buffer))(0x7ffa/2)))
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -415,7 +411,7 @@ class GrafxT3 : public Print
 	}object;
 	object solid[300];         // Matriz were saved a Sprite, X and Y cordinates of all tiles on the screen - ADD by Summoner123
 
-	int numcolision = 0;     //count of solid objects indacat how many tiles drawed on the screen - ADD by Summoner123
+	int numcolision = 3;     //count of solid objects indacat how many tiles drawed on the screen - ADD by Summoner123
 
 	bool flagcollision = true;
 
@@ -426,7 +422,7 @@ class GrafxT3 : public Print
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 	boolean collidePointRect(int16_t x1, int16_t y1, int16_t x2, int16_t y2, int16_t w, int16_t h);
-	boolean collideRectRect(int16_t x1, int16_t y1, int16_t w1, int16_t h1, int16_t x2, int16_t y2, int16_t w2, int16_t h2);
+	boolean collideRectRect(int32_t x1, int32_t y1, int32_t w1, int32_t h1, int32_t x2, int32_t y2, int32_t w2, int32_t h2);
 	boolean collideBitmapBitmap(int16_t x1, int16_t y1, const uint8_t* b1, int16_t x2, int16_t y2, const uint8_t* b2);
 
 
@@ -436,6 +432,7 @@ class GrafxT3 : public Print
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
     void drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t size);
+    
     void setTextColor(uint16_t c);
 	void setTextColor(uint16_t c, uint16_t bg);
 	void setTextSize(uint8_t s);
