@@ -1258,16 +1258,17 @@ void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **
 }
 
 void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette){
-   uint8_t tilemap_width = pgm_read_byte(tilemap);
-   uint8_t tilemap_height = pgm_read_byte(tilemap + 1);
-   uint8_t tile_width = pgm_read_byte(tilemap + 2);
-   uint8_t tile_height = pgm_read_byte(tilemap + 3);
-   tilemap += 4; // now the first tiyleis at tilemap
- // uint16_t tilemap_width = pgm_read_byte(tilemap)* 256 + pgm_read_byte(tilemap + 1);
- // uint16_t tilemap_height = pgm_read_byte(tilemap + 2)* 256 + pgm_read_byte(tilemap + 3);
- // uint16_t tile_width = pgm_read_byte(tilemap + 4);
- // uint16_t tile_height = pgm_read_byte(tilemap + 5);
- // tilemap += 6; // now the first tile is at tilemap
+//   uint8_t tilemap_width = pgm_read_byte(tilemap);
+//   uint8_t tilemap_height = pgm_read_byte(tilemap + 1);
+//   uint8_t tile_width = pgm_read_byte(tilemap + 2);
+//   uint8_t tile_height = pgm_read_byte(tilemap + 3);
+//   tilemap += 4; // now the first tiyleis at tilemap
+
+  uint16_t tilemap_width = pgm_read_byte(tilemap)* 256 + pgm_read_byte(tilemap + 1);
+  uint16_t tilemap_height = pgm_read_byte(tilemap + 2)* 256 + pgm_read_byte(tilemap + 3);
+  uint16_t tile_width = pgm_read_byte(tilemap + 4);
+  uint16_t tile_height = pgm_read_byte(tilemap + 5);
+  tilemap += 6; // now the first tile is at tilemap
 
 	uint16_t ddw = dw + dx;
 	uint16_t ddh = dh + dy;
