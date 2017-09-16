@@ -401,8 +401,8 @@ class GrafxT3 : public Print
     void        drawBitmapTM(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *bitmap, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh,  uint16_t color);
 	boolean     getBitmapPixel(const uint8_t* bitmap, uint16_t x, uint16_t y);
 
-	void        drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, const uint16_t * palette);
-	void        drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette);
+	void        drawTilemap(int x, int y, const uint16_t *tilemap, const uint8_t **spritesheet, const uint16_t * palette);
+	void        drawTilemap(int x, int y, const uint16_t *tilemap, const uint8_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette);
 
 	typedef struct {       //line 171 "Public Variables   - ADD by Summoner123
 		int x;                    //X coordinate                 - ADD by Summoner123

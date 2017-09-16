@@ -1253,11 +1253,11 @@ boolean GrafxT3::getBitmapPixel(const uint8_t* bitmap, uint16_t x, uint16_t y){
 	return pgm_read_byte(bitmap + 2 + y * ((pgm_read_byte(bitmap) + 7) / 8) + (x >> 3)) & (B10000000 >> (x % 8));
 }
 
-void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, const uint16_t * palette){
+void GrafxT3::drawTilemap(int x, int y, const uint16_t *tilemap, const uint8_t **spritesheet, const uint16_t * palette){
 	drawTilemap(x, y, tilemap, spritesheet, 0, 0, GrafxT3_TFTHEIGHT, GrafxT3_TFTWIDTH, palette);
 }
 
-void GrafxT3::drawTilemap(int x, int y, const uint8_t *tilemap, const uint8_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette){
+void GrafxT3::drawTilemap(int x, int y, const uint16_t *tilemap, const uint8_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette){
 //   uint8_t tilemap_width = pgm_read_byte(tilemap);
 //   uint8_t tilemap_height = pgm_read_byte(tilemap + 1);
 //   uint8_t tile_width = pgm_read_byte(tilemap + 2);
