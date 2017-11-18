@@ -320,6 +320,13 @@ typedef struct {
 	unsigned char cap_height;
 } ILI9341_t3_font_t;
 
+struct Rect{
+	int16_t x;
+	int16_t y;
+	uint8_t width;
+	uint8_t height;
+};
+
 
 #ifdef __cplusplus
 // At all other speeds, ILI9241_KINETISK__pspi->beginTransaction() will use the fastest available clock
@@ -331,8 +338,15 @@ typedef struct {
 #define GrafxT3_SPICLOCK_READ 20000000
 #endif
 
-//#define write_flash_page (*((void(*)(const char * page, unsigned char * buffer))(0x7ffa/2)))
+#define write_flash_page (*((void(*)(const char * page, unsigned char * buffer))(0x7ffa/2)))
 
+//Extra integers for color palette
+/*int a = 0xa; int b = 0xb; int c = 0xc; 
+int d = 0xd; int e = 0xe; int f = 0xf;
+
+uint16_t palette[16];  // Should probably be 256, but I don't use many colors...
+uint16_t pixel_data[2500];
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -401,13 +415,13 @@ class GrafxT3 : public Print
     void        drawBitmapTM(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *bitmap, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh,  uint16_t color);
 	boolean     getBitmapPixel(const uint8_t* bitmap, uint16_t x, uint16_t y);
 
-	void        drawTilemap(int x, int y, const uint16_t *tilemap, const uint8_t **spritesheet, const uint16_t * palette);
-	void        drawTilemap(int x, int y, const uint16_t *tilemap, const uint8_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette);
+	void        drawTilemap(int x, int y, const uint16_t *tilemap, const uint16_t **spritesheet, const uint16_t * palette);
+	void        drawTilemap(int x, int y, const uint16_t *tilemap, const uint16_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette);
 
 	typedef struct {       //line 171 "Public Variables   - ADD by Summoner123
 		int x;                    //X coordinate                 - ADD by Summoner123
 		int y;                    //Y coordinate                 - ADD by Summoner123
-		const byte *spritecol;    //Sprite of object             - ADD by Summoner123
+		const uint16_t *spritecol;    //Sprite of object             - ADD by Summoner123
 	}object;
 	object solid[300];         // Matriz were saved a Sprite, X and Y cordinates of all tiles on the screen - ADD by Summoner123
 
@@ -449,8 +463,7 @@ class GrafxT3 : public Print
 ////////////////////////////////////POPUP/TITLESCREEN///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
-    void popup(const __FlashStringHelper* text, uint8_t duration);
-    void updatePopup();
+    void Popup(const __FlashStringHelper* text, uint8_t s, int16_t x, int16_t y);
     const __FlashStringHelper* popupText;
     uint8_t popupTimeLeft;
     
@@ -522,11 +535,11 @@ class GrafxT3 : public Print
 	//					bitmap data in array at pixels, 4 bits per pixel
 	//					color palette data in array at palette
 	//					width must be at least 2 pixels
-	void writeRect4BPP(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *pixels, const uint16_t * palette );
+	void writeRect4BPP(int16_t x, int16_t y, int16_t w, int16_t h, const uint16_t *pixels, const uint16_t * palette );
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    void writeRect4BPPtm(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *pixels, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette );
+    void writeRect4BPPtm(int16_t x, int16_t y, int16_t w, int16_t h, const uint16_t *pixels, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette );
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -536,20 +549,20 @@ class GrafxT3 : public Print
 	//					bitmap data in array at pixels, 4 bits per pixel
 	//					color palette data in array at palette
 	//					width must be at least 4 pixels
-	void writeRect2BPP(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *pixels, const uint16_t * palette );
+	void writeRect2BPP(int16_t x, int16_t y, int16_t w, int16_t h, const uint16_t *pixels, const uint16_t * palette );
 	
 	// writeRect1BPP - 	write 1 bit per pixel paletted bitmap
 	//					bitmap data in array at pixels, 4 bits per pixel
 	//					color palette data in array at palette
 	//					width must be at least 8 pixels
-	void writeRect1BPP(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *pixels, const uint16_t * palette );
+	void writeRect1BPP(int16_t x, int16_t y, int16_t w, int16_t h, const uint16_t *pixels, const uint16_t * palette );
 
 	// writeRectNBPP - 	write N(1, 2, 4, 8) bit per pixel paletted bitmap
 	//					bitmap data in array at pixels
 	//  Currently writeRect1BPP, writeRect2BPP, writeRect4BPP use this to do all of the work. 
 	// 
 	void writeRectNBPP(int16_t x, int16_t y, int16_t w, int16_t h,  uint8_t bits_per_pixel, 
-		const uint8_t *pixels, const uint16_t * palette );
+		const uint16_t *pixels, const uint16_t * palette );
 	
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////

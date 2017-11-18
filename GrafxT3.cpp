@@ -1253,22 +1253,21 @@ boolean GrafxT3::getBitmapPixel(const uint8_t* bitmap, uint16_t x, uint16_t y){
 	return pgm_read_byte(bitmap + 2 + y * ((pgm_read_byte(bitmap) + 7) / 8) + (x >> 3)) & (B10000000 >> (x % 8));
 }
 
-void GrafxT3::drawTilemap(int x, int y, const uint16_t *tilemap, const uint8_t **spritesheet, const uint16_t * palette){
+void GrafxT3::drawTilemap(int x, int y, const uint16_t *tilemap, const uint16_t **spritesheet, const uint16_t * palette){
 	drawTilemap(x, y, tilemap, spritesheet, 0, 0, GrafxT3_TFTHEIGHT, GrafxT3_TFTWIDTH, palette);
 }
 
-void GrafxT3::drawTilemap(int x, int y, const uint16_t *tilemap, const uint8_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette){
-//   uint8_t tilemap_width = pgm_read_byte(tilemap);
+void GrafxT3::drawTilemap(int x, int y, const uint16_t *tilemap, const uint16_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette){
+ //  uint8_t tilemap_width = pgm_read_byte(tilemap);
 //   uint8_t tilemap_height = pgm_read_byte(tilemap + 1);
 //   uint8_t tile_width = pgm_read_byte(tilemap + 2);
 //   uint8_t tile_height = pgm_read_byte(tilemap + 3);
 //   tilemap += 4; // now the first tiyleis at tilemap
-
-  uint16_t tilemap_width = pgm_read_byte(tilemap)* 256 + pgm_read_byte(tilemap + 1);
-  uint16_t tilemap_height = pgm_read_byte(tilemap + 2)* 256 + pgm_read_byte(tilemap + 3);
-  uint16_t tile_width = pgm_read_byte(tilemap + 4);
-  uint16_t tile_height = pgm_read_byte(tilemap + 5);
-  tilemap += 6; // now the first tile is at tilemap
+ uint16_t tilemap_width = pgm_read_byte(tilemap)* 256 + pgm_read_byte(tilemap + 1);
+ uint16_t tilemap_height = pgm_read_byte(tilemap + 2)* 256 + pgm_read_byte(tilemap + 3);
+ uint16_t tile_width = pgm_read_byte(tilemap + 4);
+ uint16_t tile_height = pgm_read_byte(tilemap + 5);
+ tilemap += 6; // now the first tile is at tilemap
 
 	uint16_t ddw = dw + dx;
 	uint16_t ddh = dh + dy;
@@ -2052,67 +2051,36 @@ int16_t GrafxT3::strPixelLen(char * str)
 ////////////////////////////////////POPUP/TITLESCREEN///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
- void GrafxT3::popup(const __FlashStringHelper* text, uint8_t duration){
+void GrafxT3::Popup(const __FlashStringHelper* text, uint8_t s, int16_t x, int16_t y){
+	    popupText = text;
+          textsize = (s > 0) ? s : 1;
+		
+          fillRoundRect(0,0,320,60,4,BLUE);
+          drawRoundRect(0,0,320,60,4,WHITE);
 
-  if (popupTimeLeft < millis()) {
-
-  	popupText = text;
-
-  	 popupTimeLeft = millis() + duration * 1000;
-
-
-  }
-}
-
-
-
-
-
-void GrafxT3::updatePopup(){
-
-   if (millis() < popupTimeLeft){
-
-      int yOffset = 0;
-
-      setTextSize(1);
-
-//      setColor(WHITE);
-
-      fillRoundRect(0,GrafxT3_TFTHEIGHT-textsize+yOffset-3,320,textsize+3,3,WHITE);
-
-//      setColor(BLACK);
-
-      drawRoundRect(0,GrafxT3_TFTHEIGHT-textsize+yOffset-3,320,textsize+3,3,BLACK);
-
-      setCursor( 4, GrafxT3_TFTHEIGHT-textsize+yOffset-1);
-
-      print(popupText);
-
-   }
-
-}
-
-
-/*  void GrafxT3::popup(const __FlashStringHelper* text, uint8_t duration){
-	popupText = text;
-	popupTimeLeft = duration+12;
-}
-
-void GrafxT3::updatePopup(){
-	if (popupTimeLeft){
-		int yOffset = 0;
-		if(popupTimeLeft<12){
-			yOffset = 12-popupTimeLeft;
-		}
-		setTextSize(1);
-//		setColor(WHITE);
-		fillRoundRect(0,GrafxT3_TFTHEIGHT-textsize+yOffset-3,320,textsize+3,3,WHITE);
-//		setColor(BLACK);
-		drawRoundRect(0,GrafxT3_TFTHEIGHT-textsize+yOffset-3,320,textsize+3,3,BLACK);
-		setCursor( 4, GrafxT3_TFTHEIGHT-textsize+yOffset-1);
+             if (x < 0) x = 0;
+	    else if (x >= _width) x = _width - 1;
+	    cursor_x = x;
+	         if (y < 0) y = 0;
+	    else if (y >= _height) y = _height - 1;
+	    cursor_y = y;
 		print(popupText);
-		popupTimeLeft--;
-	}
+		
+	
+}
+
+
+
+
+/*void GrafxT3::Popup(const __FlashStringHelper* text){
+	    popupText = text;
+        setTextSize(2);
+        fillRoundRect(0,0,320,60,4,BLUE);
+        drawRoundRect(0,0,320,60,4,WHITE);
+        setCursor(20,20);
+		print(popupText);
+		
+	
 }*/
 
 /*void GrafxT3::titleScreen(const __FlashStringHelper* name){
@@ -2364,7 +2332,6 @@ void GrafxT3::updateScreen(void)					// call to say update the screen now.
 		endSPITransaction();
 	}
 	#endif
-	updatePopup();
 }			 
 
 boolean GrafxT3::updateAll() {
@@ -2380,10 +2347,10 @@ boolean GrafxT3::updateAll() {
 	else {
 		if (!frameEndMicros) { //runs once at the end of the frame
 //			
-         useFrameBuffer(1);
+ //        useFrameBuffer(1);
 			if (!persistence)
-				  updateScreen();
-				freeFrameBuffer(); //clear the buffer
+//				  updateScreen();
+//				freeFrameBuffer(); //clear the buffer
  //                updateScreen();
 
 			frameEndMicros = micros(); //measure the frame's end time
@@ -2929,7 +2896,7 @@ void GrafxT3::writeRect8BPP(int16_t x, int16_t y, int16_t w, int16_t h, const ui
 //					bitmap data in array at pixels, 4 bits per pixel
 //					color palette data in array at palette
 //					width must be at least 2 pixels
-void GrafxT3::writeRect4BPP(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *pixels, const uint16_t * palette )
+void GrafxT3::writeRect4BPP(int16_t x, int16_t y, int16_t w, int16_t h, const uint16_t *pixels, const uint16_t * palette )
 {
 	// Simply call through our helper
 	writeRectNBPP(x, y, w, h,  4, pixels, palette );
@@ -2937,7 +2904,7 @@ void GrafxT3::writeRect4BPP(int16_t x, int16_t y, int16_t w, int16_t h, const ui
 ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
-void GrafxT3::writeRect4BPPtm(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *pixels, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette )
+void GrafxT3::writeRect4BPPtm(int16_t x, int16_t y, int16_t w, int16_t h, const uint16_t *pixels, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette )
 {
 	dw += dx;
 	dh += dy;{
@@ -2959,7 +2926,7 @@ void GrafxT3::writeRect4BPPtm(int16_t x, int16_t y, int16_t w, int16_t h, const 
 //					bitmap data in array at pixels, 4 bits per pixel
 //					color palette data in array at palette
 //					width must be at least 4 pixels
-void GrafxT3::writeRect2BPP(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *pixels, const uint16_t * palette )
+void GrafxT3::writeRect2BPP(int16_t x, int16_t y, int16_t w, int16_t h, const uint16_t *pixels, const uint16_t * palette )
 {
 	// Simply call through our helper
 	writeRectNBPP(x, y, w, h,  2, pixels, palette );
@@ -2971,7 +2938,7 @@ void GrafxT3::writeRect2BPP(int16_t x, int16_t y, int16_t w, int16_t h, const ui
 //					bitmap data in array at pixels, 4 bits per pixel
 //					color palette data in array at palette
 //					width must be at least 8 pixels
-void GrafxT3::writeRect1BPP(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *pixels, const uint16_t * palette )
+void GrafxT3::writeRect1BPP(int16_t x, int16_t y, int16_t w, int16_t h, const uint16_t *pixels, const uint16_t * palette )
 {
 	// Simply call through our helper
 	writeRectNBPP(x, y, w, h,  1, pixels, palette );
@@ -2984,7 +2951,7 @@ void GrafxT3::writeRect1BPP(int16_t x, int16_t y, int16_t w, int16_t h, const ui
 //					bitmap data in array at pixels
 //  Currently writeRect1BPP, writeRect2BPP, writeRect4BPP use this to do all of the work. 
 void GrafxT3::writeRectNBPP(int16_t x, int16_t y, int16_t w, int16_t h,  uint8_t bits_per_pixel, 
-		const uint8_t *pixels, const uint16_t * palette )
+		const uint16_t *pixels, const uint16_t * palette )
 {
 	//Serial.printf("\nWR8: %d %d %d %d %x\n", x, y, w, h, (uint32_t)pixels);
 	x+=_originx;
@@ -3027,7 +2994,7 @@ void GrafxT3::writeRectNBPP(int16_t x, int16_t y, int16_t w, int16_t h,  uint8_t
 		w = _displayclipx2  - x;
 	} 
 
-	const uint8_t * pixels_row_start = pixels;  // remember our starting position offset into row
+	const uint16_t * pixels_row_start = pixels;  // remember our starting position offset into row
 
 	#ifdef ENABLE_GrafxT3_FRAMEBUFFER
 	if (_use_fbtft) {
