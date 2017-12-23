@@ -136,6 +136,9 @@ static const uint8_t init_commands[] = {
 void GrafxT3::begin(void)
 {
 
+beginB();
+updateB();
+
     // verify SPI pins are valid;
 	// allow user to say use current ones...
 	if ((_mosi != 255) || (_miso != 255) || (_sclk != 255)) {
@@ -1253,11 +1256,11 @@ boolean GrafxT3::getBitmapPixel(const uint8_t* bitmap, uint16_t x, uint16_t y){
 	return pgm_read_byte(bitmap + 2 + y * ((pgm_read_byte(bitmap) + 7) / 8) + (x >> 3)) & (B10000000 >> (x % 8));
 }
 
-void GrafxT3::drawTilemap(int x, int y, const uint16_t *tilemap, const uint16_t **spritesheet, const uint16_t * palette){
+void GrafxT3::drawTilemap(uint16_t x, uint16_t y, const uint16_t *tilemap, const uint16_t **spritesheet, const uint16_t * palette){
 	drawTilemap(x, y, tilemap, spritesheet, 0, 0, GrafxT3_TFTHEIGHT, GrafxT3_TFTWIDTH, palette);
 }
 
-void GrafxT3::drawTilemap(int x, int y, const uint16_t *tilemap, const uint16_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette){
+void GrafxT3::drawTilemap(uint16_t x, uint16_t y, const uint16_t *tilemap, const uint16_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette){
  //  uint8_t tilemap_width = pgm_read_byte(tilemap);
 //   uint8_t tilemap_height = pgm_read_byte(tilemap + 1);
 //   uint8_t tile_width = pgm_read_byte(tilemap + 2);
@@ -2051,12 +2054,13 @@ int16_t GrafxT3::strPixelLen(char * str)
 ////////////////////////////////////POPUP/TITLESCREEN///////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
+///////////////// up to two lines text
 void GrafxT3::Popup(const __FlashStringHelper* text, uint8_t s, int16_t x, int16_t y){
 	    popupText = text;
           textsize = (s > 0) ? s : 1;
 		
-          fillRoundRect(0,0,320,60,4,BLUE);
-          drawRoundRect(0,0,320,60,4,WHITE);
+          fillRoundRect(40,10,245,40,4,BLUE);
+          drawRoundRect(40,10,245,40,4,WHITE);
 
              if (x < 0) x = 0;
 	    else if (x >= _width) x = _width - 1;
@@ -2069,8 +2073,36 @@ void GrafxT3::Popup(const __FlashStringHelper* text, uint8_t s, int16_t x, int16
 	
 }
 
+///////////////// bubble will hold up to 4 lines text
+void GrafxT3::Popup2(const __FlashStringHelper* text, uint8_t s, int16_t x, int16_t y){
+	    popupText = text;
+          textsize = (s > 0) ? s : 1;
+		
+          fillRoundRect(40,10,245,80,4,BLUE);
+          drawRoundRect(40,10,245,80,4,WHITE);
 
+             if (x < 0) x = 0;
+	    else if (x >= _width) x = _width - 1;
+	    cursor_x = x;
+	         if (y < 0) y = 0;
+	    else if (y >= _height) y = _height - 1;
+	    cursor_y = y;
+		print(popupText);
+		
+	
+}
 
+void GrafxT3::Popup3(const __FlashStringHelper* text, uint8_t s, int16_t x, int16_t y){
+        popupText = text;
+          textsize = (s > 0) ? s : 1;
+       if (x < 0) x = 0;
+	    else if (x >= _width) x = _width - 1;
+	    cursor_x = x;
+	         if (y < 0) y = 0;
+	    else if (y >= _height) y = _height - 1;
+	    cursor_y = y;
+		print(popupText);
+}
 
 /*void GrafxT3::Popup(const __FlashStringHelper* text){
 	    popupText = text;
@@ -2341,6 +2373,9 @@ boolean GrafxT3::updateAll() {
 
 		frameEndMicros = 0;
 		frameStartMicros = micros();
+
+        updateB();
+
         return true;
 
 	}
@@ -3147,55 +3182,123 @@ void GrafxT3::drawFontBits(bool opaque, uint32_t bits, uint32_t numbits, int32_t
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////
-//////////////--------------------------BUTTON-----------------------------------//////////////
-///////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////
+void GrafxT3::beginB() {
+    pins[BTN_LEFT] = BTN_LEFT_PIN;
+    pins[BTN_UP] = BTN_UP_PIN;
+    pins[BTN_RIGHT] = BTN_RIGHT_PIN;
+    pins[BTN_DOWN] = BTN_DOWN_PIN;
+
+    pins[BTN_A] = BTN_A_PIN;
+    pins[BTN_B] = BTN_B_PIN;
+    pins[BTN_X] = BTN_X_PIN;
+    pins[BTN_Y] = BTN_Y_PIN;
+
+    pins[BTN_S] = BTN_S_PIN; 
+    pins[BTN_T] = BTN_T_PIN;
+
+    //states[BTN_UP] = 0;
+    //states[BTN_RIGHT] = 0;
+    //states[BTN_DOWN] = 0;
+    //states[BTN_A] = 0;
+    //states[BTN_B] = 0;
+    //states[BTN_X] = 0;
+    //states[BTN_Y] = 0;
+    //states[BTN_S] = 0;
+    //states[BTN_T] = 0;
+}
+
 /*
-void Adafruit_GFX_Button::initButton(GrafxT3_t3n *gfx,
-	int16_t x, int16_t y, uint8_t w, uint8_t h,
-	uint16_t outline, uint16_t fill, uint16_t textcolor,
-	const char *label, uint8_t textsize)
-{
-	_x = x;
-	_y = y;
-	_w = w;
-	_h = h;
-	_outlinecolor = outline;
-	_fillcolor = fill;
-	_textcolor = textcolor;
-	_textsize = textsize;
-	_gfx = gfx;
-	strncpy(_label, label, 9);
-	_label[9] = 0;
+ * reads each button states and store it
+ */
+void GrafxT3::updateB() {
+    for (uint8_t thisButton = 0; thisButton < NUM_BTN; thisButton++) {
+        pinMode(pins[thisButton], INPUT_PULLUP); //enable internal pull up resistors
+        if (digitalRead(pins[thisButton]) == LOW) { //if button pressed
+            states[thisButton]++; //increase button hold time
+        } else {
+            if (states[thisButton] == 0)//button idle
+                continue;
+            if (states[thisButton] == 0xFF)//if previously released
+                states[thisButton] = 0; //set to idle
+            else
+                states[thisButton] = 0xFF; //button just released
+        }
+//        pinMode(pins[thisButton], INPUT); //disable internal pull up resistors to save power
+    }
+	
+
 }
 
-void Adafruit_GFX_Button::drawButton(bool inverted)
-{
-	uint16_t fill, outline, text;
-
-	if (! inverted) {
-		fill = _fillcolor;
-		outline = _outlinecolor;
-		text = _textcolor;
-	} else {
-		fill =  _textcolor;
-		outline = _outlinecolor;
-		text = _fillcolor;
-	}
-	_gfx->fillRoundRect(_x - (_w/2), _y - (_h/2), _w, _h, min(_w,_h)/4, fill);
-	_gfx->drawRoundRect(_x - (_w/2), _y - (_h/2), _w, _h, min(_w,_h)/4, outline);
-	_gfx->setCursor(_x - strlen(_label)*3*_textsize, _y-4*_textsize);
-	_gfx->setTextColor(text);
-	_gfx->setTextSize(_textsize);
-	_gfx->print(_label);
+/*
+ * Returns true when 'button' is pressed.
+ * The button has to be released for it to be triggered again.
+ */
+boolean GrafxT3::Bpressed(uint8_t buttons) {
+    if (states[buttons] == 1)
+        return true;
+    else
+        return false;
 }
 
-bool Adafruit_GFX_Button::contains(int16_t x, int16_t y)
+boolean GrafxT3::BnotPressed(uint8_t buttons)
 {
-	if ((x < (_x - _w/2)) || (x > (_x + _w/2))) return false;
-	if ((y < (_y - _h/2)) || (y > (_y + _h/2))) return false;
-	return true;
-}*/
+    if (states[buttons] == 0)
+      return true;
+  else
+      return false;
+}
+
+/*
+ * return true if 'button' is released
+ */
+boolean GrafxT3::Breleased(uint8_t buttons) {
+    if (states[buttons] == 0xFF)
+        return true;
+    else
+        return false;
+}
+
+/**
+ * returns true ONCE when 'button' is held for 'time' frames
+ * @param button The button's ID
+ * @param time How much frames button must be held, between 1 and 254.
+ * @return true when 'button' is held for 'time' frames
+ */
+boolean GrafxT3::Bheld(uint8_t buttons, uint8_t time){
+    if(states[buttons] == (time+1))
+        return true;
+    else
+        return false;
+}
+
+/**
+ * returns true every 'period' frames when 'button' is held
+ * @param button The button's ID
+ * @param period How much frames button must be held, between 1 and 254.
+ * @return true if the button is held for the given time
+ */
+boolean GrafxT3::Brepeat(uint8_t buttons, uint8_t period) {
+    if (period <= 1) {
+        if ((states[buttons] != 0xFF) && (states[buttons]))
+            return true;
+    } else {
+        if ((states[buttons] != 0xFF) && ((states[buttons] % period) == 1))
+            return true;
+    }
+    return false;
+}
+
+/**
+ * 
+ * @param button The button's ID
+ * @return The number of frames during which the button has been held.
+ */
+uint8_t GrafxT3::BtimeHeld(uint8_t buttons){
+    if(states[buttons] != 0xFF)
+        return states[buttons];
+    else
+        return 0;
+    
+}
+
 

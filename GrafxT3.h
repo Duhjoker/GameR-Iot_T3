@@ -205,6 +205,42 @@ comment out the setFont function only in grafx.cpp*/
 #include <SPIN.h>
 #endif
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+//number of buttons
+#define NUM_BTN         10
+//buttons ID
+
+	#define BTN_UP      1
+	#define BTN_RIGHT   2
+	#define BTN_DOWN    3
+	#define BTN_LEFT    0
+
+    #define BTN_A       4
+    #define BTN_B       5
+    #define BTN_X       6
+    #define BTN_Y       7
+
+    #define BTN_S       8
+    #define BTN_T       9
+//buttons pins
+#define BTN_UP_PIN      33
+#define BTN_RIGHT_PIN   17
+#define BTN_DOWN_PIN    38
+#define BTN_LEFT_PIN    35
+
+#define BTN_A_PIN       28
+#define BTN_B_PIN       30
+#define BTN_X_PIN       26
+#define BTN_Y_PIN       32
+
+#define BTN_S_PIN       21
+#define BTN_T_PIN       4
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #define GrafxT3_TFTWIDTH  240
 #define GrafxT3_TFTHEIGHT 320
 
@@ -263,7 +299,8 @@ comment out the setFont function only in grafx.cpp*/
 #define GrafxT3_GMCTRN1 0xE1
 /*
 #define GrafxT3_PWCTR6  0xFC
-
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 */
 
 // Color definitions
@@ -356,6 +393,9 @@ uint16_t pixel_data[2500];
 class GrafxT3 : public Print
 {
   public:
+
+ //   Buttons buttons;
+
 	GrafxT3(uint8_t _CS, uint8_t _DC, uint8_t _RST = 255, uint8_t _MOSI=11, uint8_t _SCLK=13, uint8_t _MISO=12, SPINClass *pspin=(SPINClass*)(&SPIN));
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -415,17 +455,17 @@ class GrafxT3 : public Print
     void        drawBitmapTM(int16_t x, int16_t y, int16_t w, int16_t h, const uint8_t *bitmap, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh,  uint16_t color);
 	boolean     getBitmapPixel(const uint8_t* bitmap, uint16_t x, uint16_t y);
 
-	void        drawTilemap(int x, int y, const uint16_t *tilemap, const uint16_t **spritesheet, const uint16_t * palette);
-	void        drawTilemap(int x, int y, const uint16_t *tilemap, const uint16_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette);
+	void        drawTilemap(uint16_t x, uint16_t y, const uint16_t *tilemap, const uint16_t **spritesheet, const uint16_t * palette);
+	void        drawTilemap(uint16_t x, uint16_t y, const uint16_t *tilemap, const uint16_t **spritesheet, uint16_t dx, uint16_t dy, uint16_t dw, uint16_t dh, const uint16_t * palette);
 
 	typedef struct {       //line 171 "Public Variables   - ADD by Summoner123
-		int x;                    //X coordinate                 - ADD by Summoner123
-		int y;                    //Y coordinate                 - ADD by Summoner123
+		uint16_t x;                    //X coordinate                 - ADD by Summoner123
+		uint16_t y;                    //Y coordinate                 - ADD by Summoner123
 		const uint16_t *spritecol;    //Sprite of object             - ADD by Summoner123
 	}object;
-	object solid[300];         // Matriz were saved a Sprite, X and Y cordinates of all tiles on the screen - ADD by Summoner123
+	object solid[400];         // Matriz were saved a Sprite, X and Y cordinates of all tiles on the screen - ADD by Summoner123
 
-	int numcolision = 3;     //count of solid objects indacat how many tiles drawed on the screen - ADD by Summoner123
+	uint16_t numcolision = 4;     //count of solid objects indacat how many tiles drawed on the screen - ADD by Summoner123
 
 	bool flagcollision = true;
 
@@ -464,6 +504,8 @@ class GrafxT3 : public Print
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
     void Popup(const __FlashStringHelper* text, uint8_t s, int16_t x, int16_t y);
+    void Popup2(const __FlashStringHelper* text, uint8_t s, int16_t x, int16_t y);
+    void Popup3(const __FlashStringHelper* text, uint8_t s, int16_t x, int16_t y);
     const __FlashStringHelper* popupText;
     uint8_t popupTimeLeft;
     
@@ -622,6 +664,22 @@ class GrafxT3 : public Print
     
     uint8_t timePerFrame;          ////DUHJOKER GAMEBUINO
  	uint32_t nextFrameMillis;      ////DUHJOKER GAMEBUINO
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////--------------------------buttons--------------------------------////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+    void beginB();
+    void updateB();
+    boolean Bpressed(uint8_t buttons);
+    boolean BnotPressed(uint8_t buttons);
+    boolean Breleased(uint8_t buttons);
+    boolean Bheld(uint8_t buttons, uint8_t time);
+    boolean Brepeat(uint8_t buttons, uint8_t period);
+    uint8_t BtimeHeld(uint8_t buttons);
+    uint8_t pins[NUM_BTN];
+    uint8_t states[NUM_BTN];	
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -953,6 +1011,8 @@ private:
 #endif*/
 
 #endif // __cplusplus
+
+
 
 
 #endif
